@@ -20,7 +20,7 @@ const ThreeDScene: React.FC<ThreeDSceneProps> = ({ product, onAnimationComplete,
     return (
         <div className="relative w-full h-full cursor-grab active:cursor-grabbing">
             <Suspense fallback={null}>
-                <Canvas camera={{ position: [0, 0, 5], fov: 30 }}>
+                <Canvas camera={{ position: [0, 0, 0.4], fov: 30 }}>
                     <SceneContent 
                         product={product}
                         isInteracting={isInteracting}

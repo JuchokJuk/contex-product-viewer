@@ -1,15 +1,9 @@
-export interface ProductTextures {
-  normal: string;
-  map: string;
-}
-
 export interface CommonAssets {
-  clearcoatNormal: string;
   environment: string; // HDR file URL
 }
 
 export interface AssetCache {
-  images: Map<string, HTMLImageElement>;
+  models: Map<string, ArrayBuffer>; // GLB models as ArrayBuffer
   hdrEnvironment: ArrayBuffer; // Preloaded HDR data
 }
 
@@ -17,8 +11,7 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  textures: ProductTextures;
-  color: string;
+  model: string;
   specs?: string[];
 }
 
