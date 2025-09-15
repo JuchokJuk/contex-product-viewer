@@ -64,7 +64,9 @@ const SceneContent: React.FC<SceneContentProps> = ({ product, isInteracting, onC
   return (
     <>
       <Suspense fallback={null}>
-        <Environment files={hdrEnvironmentUrl} />
+        <Environment files={hdrEnvironmentUrl} environmentIntensity={0.25} />
+        <ambientLight intensity={2} />
+        {/* <pointLight position={[1, 1, 1]} intensity={10} /> */}
         <group ref={groupRef} rotation-y={-0.5}>
           {transitions((style, item) => (
             <animated.group scale={style.scale} rotation={style.rotation as unknown as [number, number, number]}>

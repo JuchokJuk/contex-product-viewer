@@ -15,7 +15,7 @@ const Navigation: React.FC<NavigationProps> = ({ onPrevious, onNext, isAnimating
                 onClick={onPrevious}
                 aria-label="Previous product"
                 disabled={isAnimating}
-                className="group w-16 h-16 flex items-center justify-center bg-gray-100 rounded-full hover:bg-gray-200 transition-all duration-200 ease-in-out active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group w-16 h-16 flex items-center justify-center bg-gray-100 rounded-full hover:bg-gray-200 transition-all duration-200 ease-in-out active:scale-95 disabled:opacity-50"
             >
                 <LeftArrowIcon className="w-6 h-6 text-gray-800 transition-transform duration-200 ease-in-out group-hover:scale-125" />
             </button>
@@ -23,7 +23,7 @@ const Navigation: React.FC<NavigationProps> = ({ onPrevious, onNext, isAnimating
                 onClick={onNext}
                 aria-label="Next product"
                 disabled={isAnimating}
-                className="group w-16 h-16 flex items-center justify-center bg-[#303F9F] text-white rounded-full hover:bg-indigo-800 transition-all duration-200 ease-in-out active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group w-16 h-16 flex items-center justify-center bg-[#303F9F] text-white rounded-full hover:bg-indigo-800 transition-all duration-200 ease-in-out active:scale-95 disabled:opacity-50"
             >
                 <RightArrowIcon className="w-6 h-6 transition-transform duration-200 ease-in-out group-hover:scale-125" />
             </button>
