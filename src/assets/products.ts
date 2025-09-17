@@ -1,17 +1,11 @@
-import type { ProductsData } from "./types";
+import classicModel from "./optimized/classic.glb?url";
+import lightsModel from "./optimized/lights.glb?url";
+import strongModel from "./optimized/strong.glb?url";
+import waveModel from "./optimized/wave.glb?url";
+import orgasmicModel from "./optimized/orgasmic.glb?url";
 
-import studioHdr from "./assets/studio_small_03_1k.hdr?url";
-import classicModel from "./assets/classic.glb?url";
-import lightsModel from "./assets/lights.glb?url";
-import strongModel from "./assets/strong.glb?url";
-import waveModel from "./assets/wave.glb?url";
-import orgasmicModel from "./assets/orgasmic.glb?url";
 
-export const PRODUCTS_DATA: ProductsData = {
-  common: {
-    environment: studioHdr,
-  },
-  entries: [
+export const products = [
   {
     id: "classic",
     name: "Contex Classic",
@@ -47,5 +41,6 @@ export const PRODUCTS_DATA: ProductsData = {
     specs: ["Ребристые", "С точками", "Волнующая текстура"],
     model: waveModel,
   },
-  ],
-};
+];
+
+export type Product = typeof products[number];

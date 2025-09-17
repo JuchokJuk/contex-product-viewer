@@ -1,7 +1,16 @@
 import { useRef, useCallback, useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 
-export interface PointerRotationOptions {
+export const usePointerRotation = ({
+  initialX = 0,
+  initialY = 0,
+  minX = -Math.PI / 4,
+  maxX = Math.PI / 4,
+  speedX = 0.005,
+  speedY = 0.005,
+  onControlStart,
+  onControlEnd,
+}: {
   initialX?: number; // radians
   initialY?: number; // radians
   minX?: number; // radians
@@ -10,11 +19,7 @@ export interface PointerRotationOptions {
   speedY?: number; // radians per px drag
   onControlStart?: () => void;
   onControlEnd?: () => void;
-}
-
-export const usePointerRotation = (opts: PointerRotationOptions = {}) => {
-  const { initialX = 0, initialY = 0, minX = -Math.PI / 4, maxX = Math.PI / 4, speedX = 0.005, speedY = 0.005, onControlStart, onControlEnd } = opts;
-
+} = {}) => {
   const { gl } = useThree();
 
   const pointerStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
