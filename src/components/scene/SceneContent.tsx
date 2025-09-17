@@ -1,24 +1,24 @@
-import { useRef, Suspense, useMemo } from "react";
+import { useRef, Suspense, useMemo, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useSpring, useTransition, animated } from "@react-spring/three";
 import { Environment } from "@react-three/drei";
 import type { Group } from "three";
 import type { Product, ProductsData, AssetCache } from "../../types";
 import ProductBox from "./ProductBox";
-import Controls from "./Controls";
+import { usePointerRotation } from "./usePointerRotation";
 
 interface SceneContentProps {
   product: Product;
-  isInteracting: boolean;
-  onControlStart: () => void;
-  onControlEnd: () => void;
   onAnimationComplete: () => void;
   productsData: ProductsData;
   assetCache: AssetCache;
 }
 
-const SceneContent: React.FC<SceneContentProps> = ({ product, isInteracting, onControlStart, onControlEnd, onAnimationComplete, productsData, assetCache }) => {
+const SceneContent: React.FC<SceneContentProps> = ({ product, onAnimationComplete, productsData, assetCache }) => {
   const groupRef = useRef<Group>(null!);
+  const xGroupRef = useRef<Group>(null!);
+  const yGroupRef = useRef<Group>(null!);
+  const baseRotationGroupRef = useRef<Group>(null!);
 
   // For HDR files, drei Environment component needs the original URL with .hdr extension
   // Blob URLs don't have file extensions, so we'll use the original URL
@@ -27,32 +27,70 @@ const SceneContent: React.FC<SceneContentProps> = ({ product, isInteracting, onC
     return productsData.common.environment;
   }, [productsData.common.environment]);
 
-  const { rotationSpeed } = useSpring({
-    rotationSpeed: isInteracting ? 0 : 1,
+  // Base rotation ref (autorotation)
+  const baseRotationY = useRef(0);
+
+  // Spring for base rotation "activeness" - smoothly transitions between 0 and 1
+  const [{ rotationSpeed }, rotationSpeedApi] = useSpring(() => ({
+    rotationSpeed: 1,
     config: { tension: 120, friction: 20 },
+  }));
+
+  const onControlStart = useCallback(() => {
+    rotationSpeedApi.start({ rotationSpeed: 0 });
+  }, [rotationSpeedApi]);
+  const onControlEnd = useCallback(() => {
+    rotationSpeedApi.start({ rotationSpeed: 1 });
+  }, [rotationSpeedApi]);
+
+  const { rotationX, rotationY } = usePointerRotation({
+    initialX: 0,
+    initialY: 0,
+    minX: -Math.PI / 4,
+    maxX: Math.PI / 4,
+    speedX: 0.005,
+    speedY: 0.005,
+    onControlStart,
+    onControlEnd,
   });
 
+  // Pointer-driven rotation spring
+  const [{ pointerRotX, pointerRotY }, pointerRotApi] = useSpring(() => ({
+    pointerRotX: rotationX.current,
+    pointerRotY: rotationY.current,
+    config: { tension: 170, friction: 26 },
+  }));
+
+  // Drive base rotation with smooth pausing
   useFrame((_state, delta) => {
-    if (groupRef.current) {
-      const baseSpeed = (2 * Math.PI) / 24;
-      const currentSpeed = rotationSpeed.get();
-      groupRef.current.rotation.y += delta * baseSpeed * currentSpeed;
+    const baseSpeed = (2 * Math.PI) / 24;
+    const autoSpeed = rotationSpeed.get();
+    baseRotationY.current += delta * baseSpeed * autoSpeed;
+    
+    // Apply rotation directly to the group
+    if (baseRotationGroupRef.current) {
+      baseRotationGroupRef.current.rotation.y = baseRotationY.current;
     }
+  });
+
+  // Drive pointer rotation spring
+  useFrame(() => {
+    pointerRotApi.start({ pointerRotX: rotationX.current, pointerRotY: rotationY.current });
   });
 
   const transitions = useTransition(product, {
     key: (item: Product) => item.id,
     from: {
-      scale: [0, 0, 0] as [number, number, number],
-      rotation: [0, -Math.PI, 0] as [number, number, number],
+      scale: 0 ,
+      rotation: -Math.PI,
     },
     enter: {
-      scale: [1, 1, 1] as [number, number, number],
-      rotation: [0, 0, 0] as [number, number, number],
+      scale: 1,
+      rotation:  0,
     },
     leave: {
-      scale: [0, 0, 0] as [number, number, number],
-      rotation: [0, Math.PI, 0] as [number, number, number],
+      scale: 0,
+      rotation: Math.PI,
     },
     config: { tension: 170, friction: 26 },
     exitBeforeEnter: true,
@@ -64,18 +102,21 @@ const SceneContent: React.FC<SceneContentProps> = ({ product, isInteracting, onC
   return (
     <>
       <Suspense fallback={null}>
-        {/* <Environment files={hdrEnvironmentUrl} environmentIntensity={1} /> */}
-        <ambientLight intensity={2.5} />
-        <pointLight position={[1, 1, 1]} intensity={10} />
-        <group ref={groupRef} rotation-y={-0.5}>
-          {transitions((style, item) => (
-            <animated.group scale={style.scale} rotation={style.rotation as unknown as [number, number, number]}>
-              <ProductBox product={item} assetCache={assetCache} />
-            </animated.group>
-          ))}
-        </group>
+        <Environment files={hdrEnvironmentUrl} environmentIntensity={1} environmentRotation={[-Math.PI / 3, 0, 0]} />
+        <animated.group ref={xGroupRef} rotation-x={pointerRotX}>
+          <animated.group ref={yGroupRef} rotation-y={pointerRotY}>
+            <group ref={baseRotationGroupRef}>
+              <group ref={groupRef}>
+                {transitions((style, item) => (
+                  <animated.group scale={style.scale} rotation-y={style.rotation}>
+                    <ProductBox product={item} assetCache={assetCache} />
+                  </animated.group>
+                ))}
+              </group>
+            </group>
+          </animated.group>
+        </animated.group>
       </Suspense>
-      <Controls onStart={onControlStart} onEnd={onControlEnd} />
     </>
   );
 };
