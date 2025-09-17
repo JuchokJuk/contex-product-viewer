@@ -4,7 +4,7 @@ import studioHdr from "./assets/studio_small_03_1k.hdr?url";
 import classicModel from "./assets/classic.glb?url";
 import lightsModel from "./assets/lights.glb?url";
 import strongModel from "./assets/strong.glb?url";
-// import waveModel from "./assets/wave.glb?url";
+import waveModel from "./assets/wave.glb?url";
 import orgasmicModel from "./assets/orgasmic.glb?url";
 
 export const PRODUCTS_DATA: ProductsData = {
@@ -45,7 +45,7 @@ export const PRODUCTS_DATA: ProductsData = {
     name: "Contex Wave",
     description: "Презервативы с ребристой и точечной структурой для дополнительной стимуляции.",
     specs: ["Ребристые", "С точками", "Волнующая текстура"],
-    model: classicModel,
+    model: waveModel,
   },
   ],
 };
